@@ -1,0 +1,52 @@
+nohup: node./bin/www: No such file or directory
+module.js:338
+    throw err;
+          ^
+Error: Cannot find module '/Users/halilakin/projects/meeting-point/meeting-point-server/server.js'
+    at Function.Module._resolveFilename (module.js:336:15)
+    at Function.Module._load (module.js:278:25)
+    at Function.Module.runMain (module.js:501:10)
+    at startup (node.js:129:16)
+    at node.js:814:3
+
+> meeting-point-server@0.0.0 start /Users/halilakin/projects/meeting-point/meeting-point-server
+> node ./bin/www
+
+events.js:85
+      throw er; // Unhandled 'error' event
+            ^
+Error: listen EADDRINUSE
+    at exports._errnoException (util.js:746:11)
+    at Server._listen2 (net.js:1156:14)
+    at listen (net.js:1182:10)
+    at Server.listen (net.js:1267:5)
+    at Object.<anonymous> (/Users/halilakin/projects/meeting-point/meeting-point-server/routes/sockets.js:4:5)
+    at Module._compile (module.js:460:26)
+    at Object.Module._extensions..js (module.js:478:10)
+    at Module.load (module.js:355:32)
+    at Function.Module._load (module.js:310:12)
+    at Module.require (module.js:365:17)
+
+npm ERR! Darwin 14.4.0
+npm ERR! argv "node" "/usr/local/bin/npm" "start"
+npm ERR! node v0.12.7
+npm ERR! npm  v2.11.3
+npm ERR! code ELIFECYCLE
+npm ERR! meeting-point-server@0.0.0 start: `node ./bin/www`
+npm ERR! Exit status 1
+npm ERR! 
+npm ERR! Failed at the meeting-point-server@0.0.0 start script 'node ./bin/www'.
+npm ERR! This is most likely a problem with the meeting-point-server package,
+npm ERR! not with npm itself.
+npm ERR! Tell the author that this fails on your system:
+npm ERR!     node ./bin/www
+npm ERR! You can get their info via:
+npm ERR!     npm owner ls meeting-point-server
+npm ERR! There is likely additional logging output above.
+
+npm ERR! Please include the following file with any support request:
+npm ERR!     /Users/halilakin/projects/meeting-point/meeting-point-server/npm-debug.log
+
+> meeting-point-server@0.0.0 start /Users/halilakin/projects/meeting-point/meeting-point-server
+> node ./bin/www
+
