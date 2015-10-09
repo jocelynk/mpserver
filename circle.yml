@@ -5,3 +5,8 @@ test:
     - sleep 5
   override:
     - mocha
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: mp-server
