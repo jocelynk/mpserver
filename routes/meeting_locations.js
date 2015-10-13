@@ -14,7 +14,12 @@ router.use(methodOverride(function(req, res){
     }
 }));
 
-router.get('/meetingLocations', function(req, res, next) {
+String.prototype.toObjectId = function() {
+    var ObjectId = (require('mongoose').Types.ObjectId);
+    return new ObjectId(this.toString());
+};
+
+router.get('/', function(req, res, next) {
     if(req.query.locationIds) {
         mongoose.model('MeetingLocation').find({'_id' : { $in: req.query.locationIds}}, function (err, userLocations) {
             if (err) {
@@ -36,32 +41,46 @@ router.get('/meetingLocations', function(req, res, next) {
 });
 
 //insert
-router.post('/meetingLocations', function(req, res, next) {
+router.post('/', function(req, res, next) {
+    console.log("in Meeting Location Post");
+    console.log(req.body.location);
     var location = req.body.location;
     if(location) {
         if(!location._id) {
-            mongoose.model('MeetingLocations').collection.insert([{
+            console.log("Inserting new Meeting Location");
+            mongoose.model('MeetingLocation').collection.insert([{
                 name : location.name,
                 latitude: location.latitude,
                 longitude: location.longitude,
                 startDate: location.startDate,
-                endDate: location.endDate,
+                endDate: null,
                 active: true,
                 description: location.description,
                 private: location.private,
                 ownerId: location.ownerId
-            }], function (err, location) {
+            }], function (err, loc) {
                 if (err) {
                     console.log(err);
                     res.status(500).send("There was a problem adding the information to the database.");
                 } else {
-                    //User has been created
-                    console.log('POST creating new location: ' + location);
-                    console.log(location);
-                    res.format({
-                        //JSON response will show the newly created blob
-                        json: function(){
-                            res.json(location);
+                    console.log("Meeting Location Saved, now saving to User");
+                    //save to User creating the meeting point
+                    console.log(location.ownerId);
+                    console.log(loc.ops[0]);
+                    mongoose.model('User').collection.update({_id: location.ownerId.toObjectId()}, { $push: {"meetingLocations": loc.ops[0]} }, function (err, user) {
+                        console.log("Updated User");
+                        console.log(user);
+                        if (err) {
+                            console.log(err);
+                            res.status(500).send("There was a problem updating the information to the database.");
+                        } else {
+                            console.log("Successfully saved to user");
+                            res.format({
+                                //JSON response will show the newly created blob
+                                json: function(){
+                                    res.json(location);
+                                }
+                            });
                         }
                     });
                 }
@@ -72,6 +91,16 @@ router.post('/meetingLocations', function(req, res, next) {
                     console.log(err);
                     res.status(500).send("There was a problem deleting the information to the database")
                 }
+
+                mongoose.model('User').findByIdAndUpdate(
+                    location.ownerId,
+                    { $pull: { 'meetingLocations': {  _id: location._id } } },function(err,model){
+                        if(err){
+                            console.log(err);
+                            return res.send(err);
+                        }
+                        return res.json(model);
+                    });
             });
 
         } else {
@@ -79,10 +108,11 @@ router.post('/meetingLocations', function(req, res, next) {
             // to prevent weirdness like infinite looping...
             var upsertData = location.toObject();
             // Delete the _id property, otherwise Mongo will return a "Mod on _id not allowed" error
+            var meetingId = upsertData._id;
             delete upsertData._id;
             delete upsertData.deletedInd;
 
-            mongoose.model('MeetingLocations').collection.update({ _id: location._id }, upsertData, function (err, location) {
+            mongoose.model('MeetingLocations').collection.update({ _id: meetingId }, upsertData, function (err, location) {
                 if (err) {
                     console.log(err);
                     res.status(500).send("There was a problem updating the information to the database.");
@@ -104,3 +134,5 @@ router.post('/meetingLocations', function(req, res, next) {
         res.status(500).send("Object is null. Cannot update");
     }
 });
+
+module.exports = router;

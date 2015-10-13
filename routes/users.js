@@ -14,7 +14,7 @@ router.use(methodOverride(function(req, res){
   }
 }));
 
-//build the REST operations at the base for blobs
+//build the REST operations at the base for users
 //this will be accessible from http://127.0.0.1:3000/blobs if the default route for / is left unchanged
 //need to add parsing for phonenumbers
 router.route('/')
@@ -53,7 +53,8 @@ router.route('/')
       console.log( mongoose.model('User'));
       mongoose.model('User').collection.insert([{
         phoneNumber : phoneNumber,
-        name : name
+        name : name,
+        meetingLocations: []
       }], function (err, user) {
         console.log("callback in posting");
         if (err) {
