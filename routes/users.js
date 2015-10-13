@@ -4,12 +4,12 @@ var express = require('express'),
     bodyParser = require('body-parser'), //parses information from POST
     methodOverride = require('method-override'); //used to manipulate POST
 
-router.use(bodyParser.urlencoded({ extended: true }))
+router.use(bodyParser.urlencoded({ extended: true }));
 router.use(methodOverride(function(req, res){
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
     // look in urlencoded POST bodies and delete it
-    var method = req.body._method
-    delete req.body._method
+    var method = req.body._method;
+    delete req.body._method;
     return method
   }
 }));
@@ -20,10 +20,11 @@ router.use(methodOverride(function(req, res){
 router.route('/')
   //GET users
     .get(function(req, res, next) {
-      if(req.query.phonenumber) {
-        mongoose.model('User').find({'phonenumber' : new RegExp(req.query.phonenumber, 'i')}, function (err, user) {
+      if(req.query.phoneNumber) {
+        mongoose.model('User').find({'phoneNumber' : new RegExp(req.query.phoneNumber, 'i')}, function (err, user) {
           if (err) {
-            return console.error(err);
+            console.error(err);
+            res.status(500).send("There was a problem getting the information to the database.");
           } else {
             //respond to both HTML and JSON. JSON responses require 'Accept: application/json;' in the Request Header
             res.format({
@@ -44,20 +45,20 @@ router.route('/')
   //POST a new user
     .post(function(req, res) {
       // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
-      var phonenumber = req.body.phonenumber;
+      var phoneNumber = req.body.phoneNumber;
       var name = req.body.name;
       //call the create function for our database
       console.log("post");
       console.log(req.body);
-      console.log(phonenumber);
-      console.log(name);
+      console.log( mongoose.model('User'));
       mongoose.model('User').collection.insert([{
-        phonenumber : phonenumber,
+        phoneNumber : phoneNumber,
         name : name
       }], function (err, user) {
+        console.log("callback in posting");
         if (err) {
           console.log(err);
-          res.send("There was a problem adding the information to the database.");
+          res.status(500).send("There was a problem adding the information to the database.");
         } else {
           //User has been created
           console.log('POST creating new user: ' + user);
