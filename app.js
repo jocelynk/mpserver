@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var app = express();
+var server = require('http').createServer(app);
+server.listen(80);
 //models
 var  db = require('./models/db');
 var models = require('./models/models');
@@ -15,9 +18,8 @@ var users = require('./routes/users');
 var meetingLocations = require('./routes/meeting_locations');
 var sockets = require('./routes/sockets');
 
+sockets.start(server);
 
-
-var app = express();
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -40,6 +42,7 @@ app.use(function(req, res, next) {
     next();
   }
 });
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

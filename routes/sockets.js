@@ -1,16 +1,17 @@
-var app = require('http').createServer(handler)
-var io = require('socket.io')(app);
+var io = require('socket.io');
 
-app.listen(8888);
-
-
-function handler (req, res) {
-    res.writeHead(200, {'content-type': 'text/plain'});
-    res.end('Sockets connected');
+function handler(socket) {
+    socket.on('send_location', function (data) {
+        console.log(data);
+        socket.emit('get_location', data);
+    });
 }
 
-io.on('connection', function (socket) {
-    socket.on('send_location', function (data) {
-        io.sockets.emit('get_location', data);
-    });
-});
+module.exports = {
+
+    start: function(fileserver) {
+        io.listen(fileserver).on('connection', handler);
+    }
+
+};
+

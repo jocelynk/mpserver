@@ -20,3 +20,10 @@ var userSchema = new mongoose.Schema({
 });
 
 mongoose.model('User', userSchema);
+
+var userMeetingLocationsSchema = new mongoose.Schema({
+    meetingId: mongoose.Schema.ObjectId,
+    userId: mongoose.Schema.ObjectId
+});
+
+mongoose.model('UserMeetingLocation', userMeetingLocationsSchema);

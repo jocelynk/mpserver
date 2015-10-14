@@ -74,6 +74,32 @@ router.post('/', function(req, res, next) {
                             console.log(err);
                             res.status(500).send("There was a problem updating the information to the database.");
                         } else {
+                           /* mongoose.model('UserMeetingLocation').collection.insert([{
+                                    name: location.name,
+                                    latitude: location.latitude,
+                                    longitude: location.longitude,
+                                    startDate: location.startDate,
+                                    endDate: null,
+                                    active: true,
+                                    description: location.description,
+                                    private: location.private,
+                                    ownerId: location.ownerId
+                                }], function (err, user) {
+                                    console.log("Updated User");
+                                    console.log(user);
+                                    if (err) {
+                                    console.log(err);
+                                    res.status(500).send("There was a problem updating the information to the database.");
+                                } else {
+                                    console.log("Successfully saved to user");
+                                    res.format({
+                                        //JSON response will show the newly created blob
+                                        json: function(){
+                                            res.json(location);
+                                        }
+                                    });
+                                }
+                            });*/
                             console.log("Successfully saved to user");
                             res.format({
                                 //JSON response will show the newly created blob
