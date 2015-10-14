@@ -4,7 +4,7 @@ var chai = require('chai'),
 
 var io = require('socket.io-client');
 
-var socketURL = "http://localhost:8888";
+var socketURL = "http://localhost:80";
 var options ={
     transports: ['websocket'],
     'force new connection': true
