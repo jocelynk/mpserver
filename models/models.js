@@ -22,7 +22,7 @@ var userSchema = new mongoose.Schema({
 mongoose.model('User', userSchema);
 
 var userMeetingLocationsSchema = new mongoose.Schema({
-    meetingId: mongoose.Schema.ObjectId,
+    meetingLocationId: mongoose.Schema.ObjectId,
     userId: mongoose.Schema.ObjectId
 });
 

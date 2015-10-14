@@ -8,6 +8,9 @@ var bodyParser = require('body-parser');
 var app = express();
 var server = require('http').createServer(app);
 server.listen(80);
+
+var io = require('socket.io')(server);
+
 //models
 var  db = require('./models/db');
 var models = require('./models/models');
@@ -18,8 +21,7 @@ var users = require('./routes/users');
 var meetingLocations = require('./routes/meeting_locations');
 var sockets = require('./routes/sockets');
 
-sockets.start(server);
-
+sockets.start(io);
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

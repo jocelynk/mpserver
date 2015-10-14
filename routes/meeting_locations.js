@@ -43,7 +43,6 @@ router.get('/', function(req, res, next) {
 //insert
 router.post('/', function(req, res, next) {
     console.log("in Meeting Location Post");
-    console.log(req.body.location);
     var location = req.body.location;
     if(location) {
         if(!location._id) {
@@ -65,48 +64,37 @@ router.post('/', function(req, res, next) {
                 } else {
                     console.log("Meeting Location Saved, now saving to User");
                     //save to User creating the meeting point
-                    console.log(location.ownerId);
-                    console.log(loc.ops[0]);
-                    mongoose.model('User').collection.update({_id: location.ownerId.toObjectId()}, { $push: {"meetingLocations": loc.ops[0]} }, function (err, user) {
-                        console.log("Updated User");
-                        console.log(user);
+                    mongoose.model('User').collection.update({_id: location.ownerId.toObjectId()}, { $push: {"meetingLocations": loc.ops[0]} }, function (err, updatedRow) {
                         if (err) {
                             console.log(err);
                             res.status(500).send("There was a problem updating the information to the database.");
                         } else {
-                           /* mongoose.model('UserMeetingLocation').collection.insert([{
-                                    name: location.name,
-                                    latitude: location.latitude,
-                                    longitude: location.longitude,
-                                    startDate: location.startDate,
-                                    endDate: null,
-                                    active: true,
-                                    description: location.description,
-                                    private: location.private,
-                                    ownerId: location.ownerId
-                                }], function (err, user) {
-                                    console.log("Updated User");
-                                    console.log(user);
-                                    if (err) {
+                            mongoose.model('UserMeetingLocation').collection.insert([{
+                                userId: location.ownerId.toObjectId(),
+                                meetingLocationId: loc.ops[0]._id
+                            }], function (err, row) {
+                                console.log("Updated UserMeetingLocation table");
+                                console.log(row);
+                                if (err) {
                                     console.log(err);
                                     res.status(500).send("There was a problem updating the information to the database.");
                                 } else {
                                     console.log("Successfully saved to user");
                                     res.format({
                                         //JSON response will show the newly created blob
-                                        json: function(){
+                                        json: function () {
                                             res.json(location);
                                         }
                                     });
                                 }
-                            });*/
-                            console.log("Successfully saved to user");
+                            });
+                            /*console.log("Successfully saved to user");
                             res.format({
                                 //JSON response will show the newly created blob
                                 json: function(){
                                     res.json(location);
                                 }
-                            });
+                            });*/
                         }
                     });
                 }
