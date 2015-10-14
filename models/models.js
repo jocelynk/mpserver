@@ -11,7 +11,7 @@ var meetingLocationSchema = new mongoose.Schema({
     private: Boolean,
     ownerId: [ {type : mongoose.Schema.ObjectId, ref : 'User'} ]
 });
-mongoose.model('MeetingLocation', meetingLocationSchema);
+var MeetingLocation = mongoose.model('MeetingLocation', meetingLocationSchema);
 
 var userSchema = new mongoose.Schema({
     name: String,
@@ -19,11 +19,11 @@ var userSchema = new mongoose.Schema({
     meetingLocations: [ {type : mongoose.Schema.ObjectId, ref : 'MeetingLocation'} ]
 });
 
-mongoose.model('User', userSchema);
+var User = mongoose.model('User', userSchema);
 
 var userMeetingLocationsSchema = new mongoose.Schema({
     meetingLocationId: mongoose.Schema.ObjectId,
     userId: mongoose.Schema.ObjectId
 });
 
-mongoose.model('UserMeetingLocation', userMeetingLocationsSchema);
+var UserMeetingLocation = mongoose.model('UserMeetingLocation', userMeetingLocationsSchema);
