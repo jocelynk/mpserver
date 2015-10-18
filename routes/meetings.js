@@ -45,7 +45,6 @@ router.route('/:phoneNumber')
 //POST a new user
 router.route('/')
     .post(function(req, res) {
-      console.log(req.body)
       // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
       var phoneNumber = req.body.phoneNumber;
       var name = req.body.name;
@@ -53,7 +52,7 @@ router.route('/')
       var latitude = req.body.latitude;
       var longitude = req.body.longitude;
       var date = req.body.date;
-      var attendees = req.body.attendees;
+      var attendees = req.body.attendees.split(',');
       mongoose.model('Meeting').collection.insert([{
         phoneNumber : phoneNumber,
         name : name,
