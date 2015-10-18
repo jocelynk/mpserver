@@ -1,29 +1,21 @@
 var mongoose = require('mongoose');
 
-var meetingLocationSchema = new mongoose.Schema({
-    name: String,
-    latitude: Number,
-    longitude: Number,
-    startDate: {type: Date, default: Date.now},
-    endDate: Date,
-    active: Boolean,
-    description: String,
-    private: Boolean,
-    ownerId: [ {type : mongoose.Schema.ObjectId, ref : 'User'} ]
-});
-mongoose.model('MeetingLocation', meetingLocationSchema);
-
 var userSchema = new mongoose.Schema({
     name: String,
     phoneNumber: String,
-    meetingLocations: [ {type : mongoose.Schema.ObjectId, ref : 'MeetingLocation'} ]
+    status: String
 });
 
 mongoose.model('User', userSchema);
 
-var userMeetingLocationsSchema = new mongoose.Schema({
-    meetingLocationId: mongoose.Schema.ObjectId,
-    userId: mongoose.Schema.ObjectId
+var meetingSchema = new mongoose.Schema({
+    phoneNumber: String,
+    name: String,
+    description: String,
+    latitude: Number,
+    longitude: Number,
+    date: Date,
+    attendees: Array
 });
+mongoose.model('Meeting', meetingSchema);
 
-mongoose.model('UserMeetingLocation', userMeetingLocationsSchema);
