@@ -27,10 +27,13 @@ router.route('/:phoneNumber')
             console.error(err);
             res.status(500).send("There was a problem getting the information to the database.");
           } else {
-            res.format({
-              json: function(){
-                res.json(user);
-              }
+            mongoose.model('Meeting').find( { $or: [{'phoneNumber' : new RegExp(req.params.phoneNumber, 'i')},{'attendees': new RegExp(req.params.phoneNumber, 'i')}] }, function (err, meetings) {
+              user.push({meetings:meetings});
+              res.format({
+                json: function(){
+                  res.json(user);
+                }
+              });
             });
           }
         });
