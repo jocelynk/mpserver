@@ -14,23 +14,28 @@ router.use(methodOverride(function (req, res) {
     }
 }));
 
+String.prototype.toObjectId = function() {
+    var ObjectId = (require('mongoose').Types.ObjectId);
+    return new ObjectId(this.toString());
+};
+
 
 //build the REST operations at the base for users
 //this will be accessible from http://127.0.0.1:3000/blobs if the default route for / is left unchanged
 //need to add parsing for phonenumbers
 
-//GET users
+//GET meetings
 router.route('/:phoneNumber')
     .get(function (req, res, next) {
         if (req.params.phoneNumber) {
-            mongoose.model('Meeting').find({'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, function (err, user) {
+            mongoose.model('Meeting').find({'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, function (err, meeting) {
                 if (err) {
                     console.error(err);
                     res.status(500).send("There was a problem getting the information to the database.");
                 } else {
                     res.format({
                         json: function () {
-                            res.json(user);
+                            res.json(meeting);
                         }
                     });
                 }
@@ -46,8 +51,8 @@ router.route('/:phoneNumber')
 router.route('/')
     .post(function (req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
-
-        if(req.body._id !== null && req.body._id !== 'undefined' && req.body._id.length > 0) {
+        if(req.body._id == null || req.body._id == 'undefined' || req.body._id.length < 1) {
+            console.log("inserting");
             var phoneNumber = req.body.phoneNumber;
             var name = req.body.name;
             var description = req.body.description;
@@ -71,7 +76,8 @@ router.route('/')
                 } else {
                     res.format({
                         json: function () {
-                            res.json(meeting);
+                            console.log(meeting);
+                            res.json(meeting.ops[0]);
                         }
                     });
                 }
@@ -80,28 +86,30 @@ router.route('/')
             })
 
         } else {
+            console.log("updating");
             // Convert the Model instance to a simple object using Model's 'toObject' function
             // to prevent weirdness like infinite looping...
-            var upsertData = location.toObject();
+            var meeting = req.body;
+            //var upsertData = meeting.toObject();
             // Delete the _id property, otherwise Mongo will return a "Mod on _id not allowed" error
-            var meetingId = upsertData._id;
-            if(upsertData._id) delete upsertData._id;
-            if(upsertData.deletedInd) delete upsertData.deletedInd;
-            if(upsertData.attendees) upsertData.attendees.split(',');
-            console.log(upsertData);
+            var meetingId = meeting._id;
+            if(meeting._id) delete meeting._id;
+            /*if(meeting.deletedInd) delete meeting.deletedInd;
+            if(meeting.attendees) meeting.attendees.split(',');*/
+            console.log(meeting);
 
-            mongoose.model('MeetingLocations').collection.update({ _id: meetingId }, upsertData, function (err, location) {
+            mongoose.model('Meeting').collection.update({ _id: meetingId.toObjectId() }, meeting, function (err, location) {
                 if (err) {
                     console.log(err);
                     res.status(500).send("There was a problem updating the information to the database.");
                 } else {
-                    //User has been created
-                    console.log('POST creating new location: ' + location);
-                    console.log(location);
+                    //Meeting updated
+                    console.log('UPDATE meeting location: ' + location);
+                    meeting._id = meetingId;
                     res.format({
                         //JSON response will show the newly created blob
                         json: function(){
-                            res.json(location);
+                            res.json(meeting);
                         }
                     });
                 }
