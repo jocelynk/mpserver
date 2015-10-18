@@ -46,40 +46,67 @@ router.route('/:phoneNumber')
 router.route('/')
     .post(function (req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
-        console.log('saving meeting');
-        console.log(req.body);
-        var phoneNumber = req.body.phoneNumber;
-        var name = req.body.name;
-        var description = req.body.description;
-        var latitude = req.body.latitude;
-        var longitude = req.body.longitude;
-        var date = req.body.date;
-        var private = req.body.private;
-        var attendees = req.body.attendees !== null && req.body.attendees.length > 0 ? req.body.attendees.split(',') : [];
-        mongoose.model('Meeting').collection.insert([{
-            phoneNumber: phoneNumber,
-            name: name,
-            description: description,
-            latitude: latitude,
-            longitude: longitude,
-            private: private,
-            date: date,
-            attendees: attendees
-        }], function (err, meeting) {
-            console.log(err);
-            console.log(meeting);
-            if (err) {
-                res.status(500).send("There was a problem adding the information to the database.");
-            } else {
-                res.format({
-                    json: function () {
-                        res.json(meeting);
-                    }
-                });
-            }
-        }, function(err) {
-            console.log(err);
-        })
+
+        if(req.body._id !== null && req.body._id !== 'undefined' && req.body._id.length > 0) {
+            var phoneNumber = req.body.phoneNumber;
+            var name = req.body.name;
+            var description = req.body.description;
+            var latitude = req.body.latitude;
+            var longitude = req.body.longitude;
+            var date = req.body.date;
+            var private = req.body.private;
+            var attendees = req.body.attendees !== null && req.body.attendees.length > 0 ? req.body.attendees.split(',') : [];
+            mongoose.model('Meeting').collection.insert([{
+                phoneNumber: phoneNumber,
+                name: name,
+                description: description,
+                latitude: latitude,
+                longitude: longitude,
+                private: private,
+                date: date,
+                attendees: attendees
+            }], function (err, meeting) {
+                if (err) {
+                    res.status(500).send("There was a problem adding the information to the database.");
+                } else {
+                    res.format({
+                        json: function () {
+                            res.json(meeting);
+                        }
+                    });
+                }
+            }, function(err) {
+                console.log(err);
+            })
+
+        } else {
+            // Convert the Model instance to a simple object using Model's 'toObject' function
+            // to prevent weirdness like infinite looping...
+            var upsertData = location.toObject();
+            // Delete the _id property, otherwise Mongo will return a "Mod on _id not allowed" error
+            var meetingId = upsertData._id;
+            if(upsertData._id) delete upsertData._id;
+            if(upsertData.deletedInd) delete upsertData.deletedInd;
+            if(upsertData.attendees) upsertData.attendees.split(',');
+            console.log(upsertData);
+
+            mongoose.model('MeetingLocations').collection.update({ _id: meetingId }, upsertData, function (err, location) {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send("There was a problem updating the information to the database.");
+                } else {
+                    //User has been created
+                    console.log('POST creating new location: ' + location);
+                    console.log(location);
+                    res.format({
+                        //JSON response will show the newly created blob
+                        json: function(){
+                            res.json(location);
+                        }
+                    });
+                }
+            });
+        }
     });
 
 module.exports = router;

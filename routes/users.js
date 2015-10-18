@@ -47,7 +47,6 @@ router.route('/:phoneNumber')
         });
       } else {
         mongoose.model('User').find(function (err, users) {
-          console.log(users);
           if (err) return next(err);
           res.json(users);
         });
