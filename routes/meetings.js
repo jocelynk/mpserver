@@ -47,7 +47,7 @@ router.route('/:phoneNumber')
             });
         }
     });
-//POST a new user
+//POST a new meeting
 router.route('/')
     .post(function (req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
