@@ -60,7 +60,32 @@ router.route('/')
             var longitude = req.body.longitude;
             var date = req.body.date;
             var private = req.body.private;
+            // return json object of displayName and phonenumbers?
             var attendees = req.body.attendees !== null && req.body.attendees.length > 0 ? req.body.attendees.split(',') : [];
+
+            mongoose.model('User').find({'phoneNumber' : { "$in" : user.meetings}}, function (err, user) {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send("There was a problem getting the information to the database.");
+                } else {
+                    if (user !== null && user !== 'undefined' && user.length > 0) {
+                        mongoose.model('Meeting').find({$or: [{'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, {'_id': { "$in" : user.meetings}}]}, function (err, meetings) {
+                            user[0]['meetings'] = meetings;
+                            res.format({
+                                json: function () {
+                                    res.json(user);
+                                }
+                            });
+                        });
+                    } else {
+                        res.format({
+                            json: function () {
+                                res.json(user);
+                            }
+                        });
+                    }
+                }
+            });
             mongoose.model('Meeting').collection.insert([{
                 phoneNumber: phoneNumber,
                 name: name,

@@ -28,7 +28,7 @@ router.route('/:phoneNumber')
             res.status(500).send("There was a problem getting the information to the database.");
           } else {
             if (user !== null && user !== 'undefined' && user.length > 0) {
-              mongoose.model('Meeting').find({$or: [{'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, {'attendees': new RegExp(req.params.phoneNumber, 'i')}]}, function (err, meetings) {
+              mongoose.model('Meeting').find({$or: [{'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, {'_id': { "$in" : user.meetings}}]}, function (err, meetings) {
                 user[0]['meetings'] = meetings;
                 res.format({
                   json: function () {

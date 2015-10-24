@@ -20,7 +20,7 @@ var userSchema = new mongoose.Schema({
     name: String,
     phoneNumber: String,
     status: String,
-    meetings: Array
+    meetings: [ {type : mongoose.Schema.ObjectId, ref : 'Meeting'} ]
 });
 
 var User = mongoose.model('User', userSchema);
@@ -33,6 +33,7 @@ var meetingSchema = new mongoose.Schema({
     longitude: Number,
     private: Boolean,
     date: Date,
-    attendees: Array
+    ownerId: {type : mongoose.Schema.ObjectId, ref : 'User'},
+    attendees: [ {type : mongoose.Schema.ObjectId, ref : 'User'} ]
 });
 mongoose.model('Meeting', meetingSchema);
