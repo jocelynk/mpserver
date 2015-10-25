@@ -19,12 +19,13 @@ var MeetingLocation = mongoose.model('MeetingLocation', meetingLocationSchema);
 var userSchema = new mongoose.Schema({
     name: String,
     phoneNumber: String,
-    meetings: Array
+    meetings: [ {type : mongoose.Schema.ObjectId, ref : 'Meeting'} ]
 });
 
 var User = mongoose.model('User', userSchema);
 
 var meetingSchema = new mongoose.Schema({
+    ownerId: {type : mongoose.Schema.ObjectId, ref : 'Meeting'},
     phoneNumber: String,
     name: String,
     description: String,
@@ -32,6 +33,6 @@ var meetingSchema = new mongoose.Schema({
     longitude: Number,
     private: Boolean,
     date: Date,
-    attendees: Array
+    attendees: [ {type : mongoose.Schema.ObjectId, ref : 'User'} ]
 });
 mongoose.model('Meeting', meetingSchema);

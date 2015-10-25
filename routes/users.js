@@ -22,20 +22,36 @@ router.use(methodOverride(function(req, res){
 router.route('/:phoneNumber')
     .get(function(req, res, next) {
       if(req.params.phoneNumber) {
-        mongoose.model('User').find({'phoneNumber' : new RegExp(req.params.phoneNumber, 'i')}, function (err, user) {
+        mongoose.model('User').findOne({'phoneNumber' : new RegExp(req.params.phoneNumber, 'i')}, function (err, user) {
+          console.log('Found User');
+          console.log(user);
           if (err) {
             console.error(err);
             res.status(500).send("There was a problem getting the information to the database.");
           } else {
-            if (user !== null && user !== 'undefined' && user.length > 0) {
-              mongoose.model('Meeting').find({$or: [{'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, {'attendees': new RegExp(req.params.phoneNumber, 'i')}]}, function (err, meetings) {
-                user[0]['meetings'] = meetings;
+            if (user !== null && user !== 'undefined') {
+              if(user.meetings !== null && user.meetings.length > 0) {
+                mongoose.model('Meeting').find({$or: [{'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, {'_id': {'$in': user.meetings}}]}, function (err, meetings) {
+                  var newUser = {};
+                  newUser._id = user._id;
+                  newUser.phoneNumber = user.phoneNumber;
+                  newUser.name = user.name;
+                  newUser.meetings = meetings;
+
+                  res.format({
+                    json: function () {
+                      res.json(newUser);
+                    }
+                  });
+                });
+              } else {
                 res.format({
                   json: function () {
                     res.json(user);
                   }
                 });
-              });
+              }
+
             } else {
               res.format({
                 json: function () {
@@ -58,10 +74,11 @@ router.route('/')
       // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
       var phoneNumber = req.body.phoneNumber;
       var name = req.body.name;
-
+      console.log('post called');
       mongoose.model('User').collection.insert([{
         phoneNumber : phoneNumber,
-        name : name
+        name : name,
+        meetings: []
       }], function (err, user) {
         if (err) {
           res.status(500).send("There was a problem adding the information to the database.");
