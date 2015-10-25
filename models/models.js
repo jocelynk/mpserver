@@ -19,7 +19,6 @@ var MeetingLocation = mongoose.model('MeetingLocation', meetingLocationSchema);
 var userSchema = new mongoose.Schema({
     name: String,
     phoneNumber: String,
-    status: String,
     meetings: Array
 });
 

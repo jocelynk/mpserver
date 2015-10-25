@@ -58,12 +58,10 @@ router.route('/')
       // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
       var phoneNumber = req.body.phoneNumber;
       var name = req.body.name;
-      var status = req.body.status;
 
       mongoose.model('User').collection.insert([{
         phoneNumber : phoneNumber,
-        name : name,
-        status : status
+        name : name
       }], function (err, user) {
         if (err) {
           res.status(500).send("There was a problem adding the information to the database.");

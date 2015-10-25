@@ -52,7 +52,8 @@ router.route('/')
     .post(function (req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
         if(req.body._id == null || req.body._id == 'undefined' || req.body._id.length < 1) {
-            console.log("inserting");
+
+            var ownerId = req.body.ownerId;
             var phoneNumber = req.body.phoneNumber;
             var name = req.body.name;
             var description = req.body.description;
@@ -60,30 +61,82 @@ router.route('/')
             var longitude = req.body.longitude;
             var date = req.body.date;
             var private = req.body.private;
-            var attendees = req.body.attendees !== null && req.body.attendees.length > 0 ? req.body.attendees.split(',') : [];
-            mongoose.model('Meeting').collection.insert([{
-                phoneNumber: phoneNumber,
-                name: name,
-                description: description,
-                latitude: latitude,
-                longitude: longitude,
-                private: private,
-                date: date,
-                attendees: attendees
-            }], function (err, meeting) {
-                if (err) {
-                    res.status(500).send("There was a problem adding the information to the database.");
-                } else {
-                    res.format({
-                        json: function () {
-                            console.log(meeting);
-                            res.json(meeting.ops[0]);
+            var attendees = req.body.attendees;
+
+            var total = 0;
+            var users = [];
+            var userIds = [];
+            for(var i = 0; i < attendees.length; i++) {
+                mongoose.model('User').collection.findOne({'phoneNumber' : new RegExp(attendees[i].phoneNumber, 'i')},
+                function(err, user) {
+                    console.log(user);
+                    if(err) {
+                        console.log(err);
+                        res.status(500).send("There was a problem adding the information to the database.");
+                    } else {
+                        if (user !== null && user !== 'undefined' && user.length > 0) {
+                            users.push(user);
+                            userIds.push(user._id);
+                            total++;
+                        } else {
+                            mongoose.model('User').collection.insert([{
+                                name: attendees[i].name,
+                                phoneNumber: attendees[i].phoneNumber
+                            }], function (err, user) {
+                                if (err) {
+                                    res.status(500).send("There was a problem adding the information to the database.");
+                                } else {
+                                    users.push(user.ops[0]);
+                                    userIds.push(user.ops[0]._id);
+                                }
+                                total++;
+                            }, function(err) {
+                                console.log(err);
+                            })
+
                         }
-                    });
-                }
-            }, function(err) {
-                console.log(err);
-            })
+                    }
+
+                }, function(err) {
+                    console.log(err);
+
+                });
+            }
+
+            if(total == attendees.length) {
+                mongoose.model('Meeting').collection.insert([{
+                    phoneNumber: phoneNumber,
+                    name: name,
+                    description: description,
+                    latitude: latitude,
+                    longitude: longitude,
+                    private: private,
+                    date: date,
+                    attendees: attendees
+                }], function (err, meeting) {
+                    if (err) {
+                        res.status(500).send("There was a problem adding the information to the database.");
+                    } else {
+                        userIds.push(ownerId.toObjectId);
+                        mongoose.model('User').collection.update(
+                            { '_id': {'$in':userIds} },
+                            { $push: { 'meetings': meeting.ops[0]._id } }
+                        );
+                        meeting.attendees = users;
+                        res.format({
+                            json: function () {
+                                console.log(meeting);
+                                res.json(meeting.ops[0]);
+                            }
+                        });
+                    }
+                }, function(err) {
+                    console.log(err);
+                })
+            }
+
+
+
 
         } else {
             console.log("updating");
