@@ -38,10 +38,33 @@ var updateUsers = function(update_arr, id) {
 
 
 //GET meetings
-router.route('/:phoneNumber')
+router.route('/:id')
     .get(function (req, res, next) {
-        if (req.params.phoneNumber) {
-            mongoose.model('Meeting').find({'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, function (err, meeting) {
+        console.log(req.params.id);
+        if (req.params.id) {
+            mongoose.model('Meeting').find({'_id': req.params.id.toObjectId()}).populate('attendees', 'name').exec(function (err, meeting) {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send("There was a problem getting the information to the database.");
+                } else {
+                    res.format({
+                        json: function () {
+                            res.json(meeting[0]);
+                        }
+                    });
+                }
+            });
+        } else {
+            mongoose.model('Meeting').find(function (err, meetings) {
+                if (err) return next(err);
+                res.json(meetings);
+            });
+        }
+    });
+/*router.route('/:id')
+    .get(function (req, res, next) {
+        if (req.params.id) {
+            mongoose.model('Meeting').find({'_id': req.params.id.toObjectId()}, function (err, meeting) {
                 if (err) {
                     console.error(err);
                     res.status(500).send("There was a problem getting the information to the database.");
@@ -59,7 +82,7 @@ router.route('/:phoneNumber')
                 res.json(meetings);
             });
         }
-    });
+    });*/
 //POST a new meeting
 router.route('/')
     .post(function (req, res) {
@@ -134,6 +157,7 @@ router.route('/')
                                         res.status(500).send("There was a problem adding the information to the database.");
                                     } else {
                                         meeting.ops[0].attendees = totalUsers;
+                                        meeting.ops[0].action = 'INSERT';
                                         res.format({
                                             json: function () {
                                                 res.json(meeting.ops[0]);
@@ -175,6 +199,7 @@ router.route('/')
                                 res.status(500).send("There was a problem adding the information to the database.");
                             } else {
                                 meeting.ops[0].attendees = totalUsers;
+                                meeting.ops[0].action = "INSERT";
                                 res.format({
                                     json: function () {
                                         res.json(meeting.ops[0]);
