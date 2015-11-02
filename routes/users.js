@@ -23,8 +23,6 @@ router.route('/:phoneNumber')
     .get(function(req, res, next) {
       if(req.params.phoneNumber) {
         mongoose.model('User').findOne({'phoneNumber' : new RegExp(req.params.phoneNumber, 'i')}, function (err, user) {
-          console.log('Found User');
-          console.log(user);
           if (err) {
             console.error(err);
             res.status(500).send("There was a problem getting the information to the database.");
@@ -74,7 +72,6 @@ router.route('/')
       // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
       var phoneNumber = req.body.phoneNumber;
       var name = req.body.name;
-      console.log('post called');
       mongoose.model('User').collection.insert([{
         phoneNumber : phoneNumber,
         name : name,

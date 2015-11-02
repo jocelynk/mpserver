@@ -38,10 +38,33 @@ var updateUsers = function(update_arr, id) {
 
 
 //GET meetings
-router.route('/:phoneNumber')
+router.route('/:id')
     .get(function (req, res, next) {
-        if (req.params.phoneNumber) {
-            mongoose.model('Meeting').find({'phoneNumber': new RegExp(req.params.phoneNumber, 'i')}, function (err, meeting) {
+        console.log(req.params.id);
+        if (req.params.id) {
+            mongoose.model('Meeting').find({'_id': req.params.id.toObjectId()}).populate('attendees', 'name').exec(function (err, meeting) {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send("There was a problem getting the information to the database.");
+                } else {
+                    res.format({
+                        json: function () {
+                            res.json(meeting[0]);
+                        }
+                    });
+                }
+            });
+        } else {
+            mongoose.model('Meeting').find(function (err, meetings) {
+                if (err) return next(err);
+                res.json(meetings);
+            });
+        }
+    });
+/*router.route('/:id')
+    .get(function (req, res, next) {
+        if (req.params.id) {
+            mongoose.model('Meeting').find({'_id': req.params.id.toObjectId()}, function (err, meeting) {
                 if (err) {
                     console.error(err);
                     res.status(500).send("There was a problem getting the information to the database.");
@@ -59,49 +82,55 @@ router.route('/:phoneNumber')
                 res.json(meetings);
             });
         }
-    });
+    });*/
 //POST a new meeting
 router.route('/')
     .post(function (req, res) {
         // Get values from POST request. These can be done through forms or REST calls. These rely on the "name" attributes for forms
-        if (req.body._id == null || req.body._id == 'undefined' || req.body._id.length < 1) {
-
-            var ownerId = req.body.ownerId;
-            var phoneNumber = req.body.phoneNumber;
-            var name = req.body.name;
-            var description = req.body.description;
-            var latitude = req.body.latitude;
-            var longitude = req.body.longitude;
-            var date = req.body.date;
-            var priv = req.body.private;
-            var attendees = req.body.attendees;
+        var meetingLocation = req.body.meetingLocation;
+        var selectedContacts = req.body.newContacts || [];
+        var deletedContacts = req.body.deletedContacts || [];
+        console.log(meetingLocation);
+        if (meetingLocation._id == null || meetingLocation.body._id == 'undefined') {
+            console.log("in save");
+            var ownerId = meetingLocation.ownerId;
+            var phoneNumber = meetingLocation.phoneNumber;
+            var name = meetingLocation.name;
+            var description = meetingLocation.description;
+            var latitude = meetingLocation.latitude;
+            var longitude = meetingLocation.longitude;
+            var date = meetingLocation.date;
+            var priv = meetingLocation.private;
+            var attendees = meetingLocation.attendees;
 
             var userIds = [];
             var numbers = [];
             var existingUsers = [];
             var totalUsers = [];
 
-            for (var i = 0; i < attendees.length; i++) {
-                numbers.push(attendees[i].phoneNumber.replace(/\D+/g, "").replace(/^[01]+/, ""));
+            for (var i = 0; i < selectedContacts.length; i++) {
+                numbers.push(selectedContacts[i].phoneNumber.replace(/\D+/g, "").replace(/^[01]+/, ""));
             }
 
+            console.log(numbers);
             mongoose.model('User').find({'phoneNumber': {'$in': numbers}}, function (err, users) {
                 if (err) {
                     console.error(err);
                     res.status(500).send("There was a problem getting the information to the database.");
                 } else {
+                    console.log(users);
                     for (var i = 0; i < users.length; i++) {
                         userIds.push(users[i]._id);
                         existingUsers.push(users[i].phoneNumber);
                     }
-                    totalUsers = users;
+                    totalUsers = totalUsers.concat(users);
                     var newUsers = [];
 
                     for (var i = 0; i < numbers.length; i++) {
                         if (existingUsers.indexOf(numbers[i]) < 0) {
                             var newUser = {};
-                            newUser.name = attendees[i].name; //should be replaced with phoneNumber?
-                            newUser.phoneNumber = attendees[i].phoneNumber;
+                            newUser.name = selectedContacts[i].name; //should be replaced with phoneNumber?
+                            newUser.phoneNumber = selectedContacts[i].phoneNumber;
                             newUser.meetings = [];
                             newUsers.push(newUser);
                         }
@@ -128,6 +157,7 @@ router.route('/')
                                         res.status(500).send("There was a problem adding the information to the database.");
                                     } else {
                                         meeting.ops[0].attendees = totalUsers;
+                                        meeting.ops[0].action = 'INSERT';
                                         res.format({
                                             json: function () {
                                                 res.json(meeting.ops[0]);
@@ -169,6 +199,7 @@ router.route('/')
                                 res.status(500).send("There was a problem adding the information to the database.");
                             } else {
                                 meeting.ops[0].attendees = totalUsers;
+                                meeting.ops[0].action = "INSERT";
                                 res.format({
                                     json: function () {
                                         res.json(meeting.ops[0]);
