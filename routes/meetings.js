@@ -61,28 +61,6 @@ router.route('/:id')
             });
         }
     });
-/*router.route('/:id')
-    .get(function (req, res, next) {
-        if (req.params.id) {
-            mongoose.model('Meeting').find({'_id': req.params.id.toObjectId()}, function (err, meeting) {
-                if (err) {
-                    console.error(err);
-                    res.status(500).send("There was a problem getting the information to the database.");
-                } else {
-                    res.format({
-                        json: function () {
-                            res.json(meeting);
-                        }
-                    });
-                }
-            });
-        } else {
-            mongoose.model('Meeting').find(function (err, meetings) {
-                if (err) return next(err);
-                res.json(meetings);
-            });
-        }
-    });*/
 //POST a new meeting
 router.route('/')
     .post(function (req, res) {
@@ -90,7 +68,6 @@ router.route('/')
         var meetingLocation = req.body.meetingLocation;
         var selectedContacts = req.body.newContacts || [];
         var deletedContacts = req.body.deletedContacts || [];
-        console.log(meetingLocation);
         if (meetingLocation._id == null || meetingLocation.body._id == 'undefined') {
             console.log("in save");
             var ownerId = meetingLocation.ownerId;

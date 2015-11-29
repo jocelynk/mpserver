@@ -3,7 +3,7 @@ var models = require("../models/models");
 var should = require('should');
 var assert = require('assert');
 var request = require('supertest');
-var users = require('../routes/users')
+var meetings = require('../routes/meetings')
 
 //tell Mongoose to use a different DB - created on the fly
 
@@ -17,20 +17,29 @@ describe('Routing', function() {
         var db = mongoose.createConnection('mongodb://localhost/test_db');
         done();
     });
-    describe('Users', function() {
-        it('should save new user', function(done) {
-            var user = {
-                phoneNumber : '1234567890',
-                name : 'Alice',
-                meetings: []
+    describe('Meetings', function () {
+        it('should save new meeting', function (done) {
+            var meeting = {
+                meetingLocation: {
+                    _id: null,
+                    ownerId: '562ea856fdd9aa941b1d5cb0',
+                    phoneNumber: '1234567890',
+                    name: 'Home',
+                    description: 'I like napping at home.',
+                    latitude: 0,
+                    longitude: 0,
+                    date: new Date(),
+                    priv: 'Y',
+                    attendees: []
+                }
             };
             // once we have specified the info we want to send to the server via POST verb,
             // we need to actually perform the action on the resource, in this case we want to 
             // POST on /api/profiles and we want to send some info
             // We do this using the request object, requiring supertest!
             request('http://localhost:5000')
-                .post('/user')
-                .send(user)
+                .post('/meeting')
+                .send(meeting)
                 .expect('Content-Type', /json/)
                 .expect(200) //Status code
                 // end handles the response
@@ -38,17 +47,14 @@ describe('Routing', function() {
                     if (err) {
                         throw err;
                     }
-                    // this is should.js syntax, very clear
-                    res.body.insertedCount.should.equal(1);
-                    res.body.ops[0].phoneNumber.should.equal(user.phoneNumber);
-                    res.body.ops[0].name.should.equal(user.name);
-                    res.body.ops[0]._id.should.not.equal(null);
+                    res.body.name.should.equal('Home');
+                    res.body.phoneNumber.should.equal('1234567890');
                     done();
                 });
         });
-        it('should get user', function(done){
+        it('should get a meeting', function(done){
             request('http://localhost:5000')
-                .get('/user/1234567890')
+                .get('/meeting/565a79ff555d241c14d33845')
                 //.send(body)
                 .expect('Content-Type', /json/)
                 .expect(200) //Status code
@@ -57,9 +63,12 @@ describe('Routing', function() {
                         throw err;
                     }
                     // Should.js fluent syntax applied
-                    res.body.should.have.property('_id');
+                    res.body._id.should.equal('565a79ff555d241c14d33845');
+                    res.body.ownerId.should.equal('562ea856fdd9aa941b1d5cb0');
                     res.body.phoneNumber.should.equal('1234567890');
-                    res.body.name.should.equal('Alice');
+                    res.body.name.should.equal('Home');
+                    res.body.latitude.should.equal(0);
+                    res.body.longitude.should.equal(0);
                     done();
                 });
         });
