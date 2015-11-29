@@ -17,6 +17,7 @@ We propose to create an application where your group can pin a location on a map
 ### Git Repository:
 * [Client] (https://github.com/meeting-point/mpclient)
 * [Server] (https://github.com/meeting-point/mpserver)
+* [Processing Server] (https://github.com/meeting-point/mpreminder)
 
 ### Continuous Integration and Deployment:
 * [Client] (https://circleci.com/gh/meeting-point/mpclient) ![](https://circleci.com/gh/meeting-point/mpclient.svg?style=shield&circle-token=:circle-token)
