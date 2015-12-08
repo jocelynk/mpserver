@@ -75,5 +75,41 @@ describe('Routing', function() {
                     done();
                 });
         });
+        it('should update a meeting', function(done){
+            var meeting_update = {
+                meetingLocation: {
+                    _id: meeting_id,
+                    ownerId: '562ea856fdd9aa941b1d5cb0',
+                    phoneNumber: '987654321',
+                    name: 'School',
+                    description: 'I love cookies.',
+                    latitude: 50,
+                    longitude: 50,
+                    date: new Date(),
+                    priv: 'Y',
+                    attendees: []
+                }
+            };
+            request('http://localhost:5000')
+                .put('/meeting')
+                .send(meeting_update)
+                .expect('Content-Type', /json/)
+                .expect(200) //Status code
+                .end(function(err,res) {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(res.body);
+                    // Should.js fluent syntax applied
+                    res.body._id.should.equal(meeting_id);
+                    res.body.ownerId.should.equal('562ea856fdd9aa941b1d5cb0');
+                    res.body.phoneNumber.should.equal('987654321');
+                    res.body.description.should.equal('I love cookies.');
+                    res.body.name.should.equal('School');
+                    res.body.latitude.should.equal(50);
+                    res.body.longitude.should.equal(50);
+                    done();
+                });
+        });
     });
 });
