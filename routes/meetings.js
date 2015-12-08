@@ -68,6 +68,7 @@ router.route('/')
         var meetingLocation = req.body.meetingLocation;
         var selectedContacts = req.body.newContacts || [];
         var deletedContacts = req.body.deletedContacts || [];
+
         if (meetingLocation._id == null || meetingLocation.body._id == 'undefined') {
             console.log("in save");
             var ownerId = meetingLocation.ownerId;
@@ -134,7 +135,7 @@ router.route('/')
                                         res.status(500).send("There was a problem adding the information to the database.");
                                     } else {
                                         meeting.ops[0].attendees = totalUsers;
-                                        meeting.ops[0].action = 'INSERT';
+                                        meeting.ops[0].action = 'CREATE';
                                         res.format({
                                             json: function () {
                                                 res.json(meeting.ops[0]);
@@ -145,13 +146,13 @@ router.route('/')
                                         updateUsers(userIds, meeting.ops[0]._id);
 
                                         /*mongoose.model('User').collection.update(
-                                            {'_id': ownerId.toObjectId()},
-                                            {$push: {'meetings': meeting.ops[0]._id}}, function (err, user) {
-                                                if (err) {
-                                                    console.log(err);
-                                                }
-                                            }
-                                        );*/
+                                         {'_id': ownerId.toObjectId()},
+                                         {$push: {'meetings': meeting.ops[0]._id}}, function (err, user) {
+                                         if (err) {
+                                         console.log(err);
+                                         }
+                                         }
+                                         );*/
                                     }
                                 }, function (err) {
                                     console.log(err);
@@ -176,7 +177,7 @@ router.route('/')
                                 res.status(500).send("There was a problem adding the information to the database.");
                             } else {
                                 meeting.ops[0].attendees = totalUsers;
-                                meeting.ops[0].action = "INSERT";
+                                meeting.ops[0].action = "CREATE";
                                 res.format({
                                     json: function () {
                                         res.json(meeting.ops[0]);
@@ -186,14 +187,14 @@ router.route('/')
                                 userIds.push(ownerId.toObjectId());
                                 updateUsers(userIds, meeting.ops[0]._id);
 
-                              /*  mongoose.model('User').collection.update(
-                                    {'_id': ownerId.toObjectId()},
-                                    {$push: {'meetings': meeting.ops[0]._id}}, function (err, user) {
-                                        if (err) {
-                                            console.log(err);
-                                        }
-                                    }
-                                );*/
+                                /*  mongoose.model('User').collection.update(
+                                 {'_id': ownerId.toObjectId()},
+                                 {$push: {'meetings': meeting.ops[0]._id}}, function (err, user) {
+                                 if (err) {
+                                 console.log(err);
+                                 }
+                                 }
+                                 );*/
                             }
                         }, function (err) {
                             console.log(err);
@@ -201,36 +202,41 @@ router.route('/')
                     }
                 }
             });
-        } else {
-            console.log("updating");
-            // Convert the Model instance to a simple object using Model's 'toObject' function
-            // to prevent weirdness like infinite looping...
-            var meeting = req.body;
-            //var upsertData = meeting.toObject();
-            // Delete the _id property, otherwise Mongo will return a "Mod on _id not allowed" error
-            var meetingId = meeting._id;
-            if (meeting._id) delete meeting._id;
-            /*if(meeting.deletedInd) delete meeting.deletedInd;
-             if(meeting.attendees) meeting.attendees.split(',');*/
-            console.log(meeting);
-
-            mongoose.model('Meeting').collection.update({_id: meetingId.toObjectId()}, meeting, function (err, location) {
-                if (err) {
-                    console.log(err);
-                    res.status(500).send("There was a problem updating the information to the database.");
-                } else {
-                    //Meeting updated
-                    console.log('UPDATE meeting location: ' + location);
-                    meeting._id = meetingId;
-                    res.format({
-                        //JSON response will show the newly created blob
-                        json: function () {
-                            res.json(meeting);
-                        }
-                    });
-                }
-            });
         }
+    });
+
+router.route('/')
+    .put(function(req, res){
+
+        console.log("updating in put");
+        // Convert the Model instance to a simple object using Model's 'toObject' function
+        // to prevent weirdness like infinite looping...
+        var meetingLocation = req.body.meetingLocation;
+        var selectedContacts = req.body.newContacts || [];
+        var deletedContacts = req.body.deletedContacts || [];
+        //var upsertData = meeting.toObject();
+        // Delete the _id property, otherwise Mongo will return a "Mod on _id not allowed" error
+        var meetingId = meetingLocation._id;
+        if (meetingLocation._id) delete meetingLocation._id;
+        console.log(meetingLocation);
+
+        mongoose.model('Meeting').collection.update({_id: meetingId.toObjectId()}, meetingLocation, function (err, location) {
+            if (err) {
+                console.log(err);
+                res.status(500).send("There was a problem updating the information to the database.");
+            } else {
+                //Meeting updated
+                console.log('UPDATE meeting location: ' + location);
+                meetingLocation._id = meetingId;
+                meetingLocation.action = 'UPDATE';
+                res.format({
+                    //JSON response will show the newly created blob
+                    json: function () {
+                        res.json(meetingLocation);
+                    }
+                });
+            }
+        });
     });
 
 module.exports = router;
