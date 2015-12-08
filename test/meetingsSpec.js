@@ -17,6 +17,7 @@ describe('Routing', function() {
         var db = mongoose.createConnection('mongodb://localhost/test_db');
         done();
     });
+    var meeting_id = null;
     describe('Meetings', function () {
         it('should save new meeting', function (done) {
             var meeting = {
@@ -47,6 +48,7 @@ describe('Routing', function() {
                     if (err) {
                         throw err;
                     }
+                    meeting_id = res.body._id;
                     res.body.name.should.equal('Home');
                     res.body.phoneNumber.should.equal('1234567890');
                     done();
@@ -54,7 +56,7 @@ describe('Routing', function() {
         });
         it('should get a meeting', function(done){
             request('http://localhost:5000')
-                .get('/meeting/565a79ff555d241c14d33845')
+                .get('/meeting/' + meeting_id)
                 //.send(body)
                 .expect('Content-Type', /json/)
                 .expect(200) //Status code
@@ -62,8 +64,9 @@ describe('Routing', function() {
                     if (err) {
                         throw err;
                     }
+                    console.log(res.body);
                     // Should.js fluent syntax applied
-                    res.body._id.should.equal('565a79ff555d241c14d33845');
+                    res.body._id.should.equal(meeting_id);
                     res.body.ownerId.should.equal('562ea856fdd9aa941b1d5cb0');
                     res.body.phoneNumber.should.equal('1234567890');
                     res.body.name.should.equal('Home');
