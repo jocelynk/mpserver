@@ -1,0 +1,9 @@
+{
+  "mongoAppDb" : {
+    "host": "ds035014.mongolab.com",
+    "db": "heroku_p43wgxfq",
+    "username":"heroku_p43wgxfq",
+    "password": "6uobk9jdbtu7d067qqh09caubl",
+    "port": 35014
+  }
+}
