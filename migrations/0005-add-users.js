@@ -13,7 +13,7 @@ exports.up = function (db, next) {
             meetings: []
         },
         {
-            phoneNumber: "987645321",
+            phoneNumber: "987654321",
             name: "Test User Two",
             meetings: []
         }];
