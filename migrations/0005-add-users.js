@@ -9,7 +9,7 @@ exports.up = function (db, next) {
     var users_list = [
         {
             phoneNumber: "123456789",
-            name: "Test User One"
+            name: "Test User One",
             meetings: []
         },
         {
