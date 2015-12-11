@@ -6,8 +6,8 @@ exports.up = function (db, next) {
     var users = db.collection('users');
     var user_one_id = '';
     var user_two_id = '';
-
-    users.findOne({phoneNumber: '123456789'}, function (err, obj) {
+	
+	users.findOne({phoneNumber: '123456789'}, function (err, obj) {
             user_one_id = obj._id;
             users.findOne({phoneNumber: '987654321'}, function (err, obj) {
                     user_two_id = obj._id;
