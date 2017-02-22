@@ -12,8 +12,6 @@ We propose to create an application where your group can pin a location on a map
 
 ### Team
 
-[Inna Shteinbuk], [Jocelyn Kong], [Halil Akin]
-
 ### Git Repository:
 * [Client] (https://github.com/meeting-point/mpclient)
 * [Server] (https://github.com/meeting-point/mpserver)
@@ -33,6 +31,6 @@ We propose to create an application where your group can pin a location on a map
 ### Deployment
 * Server - http://mp-server.herokuapp.com
 	- This is just the backend, so there is no UI for it.
-	- Example of routes: http://mp-server.herokuapp.com/user/9088927117
+	- Example of routes: http://mp-server.herokuapp.com/user/234566789
 	- Automatic deployments through CircleCI
 * Client - We are creating a mobile app, so this is not applicable. Will deploy this to Heroku later.
